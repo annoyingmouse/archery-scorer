@@ -1,4 +1,14 @@
-archery-scorer
+Archery Scorer
 ==============
 
-A simple web-application leveraging Firebase to store your archery scores
+A simple web-application leveraging [Firebase](https://www.firebase.com/) to store your archery scores. This started [because I couldn't get my mental arithmetic up to speed to calculate my score for a round of six arrows shot](http://drmsite.blogspot.co.uk/2014/08/archery-scorer-mental-arithmetic-isnt.html)... rather than work on my maths skills I decided to cheat ;-).
+
+Simply host this [within a publicly shared folder in your Google Drive](https://support.google.com/drive/answer/2881970?hl=en) and sign up for a [Firebase](https://www.firebase.com/) account... then replace the two `<your-firebase>` references (one in each file) with whatever the name of your firebase is. Remember the location of your page and you're away.
+
+TODO
+----
+1. Implement simple security
+2. Separate scores by day (probably have to do something with the structure of the DB for this to work)
+3. Perhaps make it work for multiple people/profiles.
+4. Improve filtering so multiple sessions a day can be displayed.
+5. Some fancy visualizations for improvements etc.
