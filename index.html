@@ -42,6 +42,40 @@
 			#content{
 				margin: 0 auto;
 			}
+            .form-signin {
+                max-width: 330px;
+                padding: 15px;
+                margin: 0 auto;
+            }
+            .form-signin .form-signin-heading,
+            .form-signin .checkbox {
+                margin-bottom: 10px;
+            }
+            .form-signin .checkbox {
+                font-weight: normal;
+            }
+            .form-signin .form-control {
+                position: relative;
+                height: auto;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                padding: 10px;
+                font-size: 16px;
+            }
+            .form-signin .form-control:focus {
+                z-index: 2;
+            }
+            .form-signin input[type="email"] {
+                margin-bottom: -1px;
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+            .form-signin input[type="password"] {
+                margin-bottom: 10px;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
 		</style>
 	</head>
 	<body>
@@ -59,12 +93,17 @@
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#">Record</a></li>
-						<li><a href="./show.html">Display</a></li>
+						<li class="hidden-unless-authorised"><a href="./show.html">Display</a></li>
 					</ul>
+                    <div class="navbar-header pull-right hidden-unless-authorised">
+                        <p class="navbar-text">
+                            <button id="logout" class="btn btn-xs btn-info navbar-link">Log out</button>
+                        </p>
+                    </div>
 				</div>
 			</div>
 		</div>
-		<container>
+		<container class="hidden-unless-authorised">
 			<block id="roundTotal">0</block>
 			<block class="num score" data-num="9">9</block>
 			<block class="num score" data-num="8">8</block>
@@ -79,18 +118,84 @@
 			<block class="num score" data-num="0">M</block>
 			<block class="num score" data-num="10">10</block>
 		</container>
+        <div class="container hidden-when-authorised">
+            <form class="form-signin" role="form" id="login_form">
+                <label for="username">Email address:</label>
+                <div class="form-group" id="usernameHolder">
+                    <input type="email" class="form-control" placeholder="Email address" required autofocus id="username" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" placeholder="Password" required id="password" name="password">
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" value="login" name="login">Sign in</button>
+                <button id="password-reset" class="btn btn-lg btn-warning btn-block hidden-unless-auth-failed">Forgotten password?</button>
+            </form>
+        </div>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.js"></script>
-		<script src="https://cdn.firebase.com/js/client/1.0.19/firebase.js"></script>
+		<script src="https://cdn.firebase.com/js/client/1.1.1/firebase.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/lang/en-gb.min.js"></script>
 		<script>
-			var myFirebaseRef = new Firebase("https://<your-firebase>.firebaseio.com/scores/");
+            var myFirebaseRef = new Firebase("https://<your-firebase>.firebaseio.com");
 			var total = 0;
 			var clicks = 0;
 			var scores = [];
+			var user;
 			$(function(){
 				$(document).nodoubletapzoom();
+                $(".hidden-unless-auth-failed").hide();
+                myFirebaseRef.onAuth(function(authData) {
+                    if (authData) {
+                        user = authData;
+                        $(".hidden-when-authorised").hide();
+                        $(".hidden-unless-authorised").show();
+                        console.log("User ID: " + authData.uid + ", Provider: " + authData.provider);
+                    } else {
+                        user = null;
+                        $(".hidden-when-authorised").show();
+                        $(".hidden-unless-authorised").hide();
+                        console.log("User not logged on");
+                    }
+                });
+                $("#login_form").submit(function(e){
+                    e.preventDefault();
+                    myFirebaseRef.authWithPassword({
+						email    : $("#username").val(),
+						password : $("#password").val()
+					}, function(error, authData) {
+						if (error === null) {
+                            user = authData;
+							console.log("User ID: " + authData.uid + ", Provider: " + authData.provider);
+						} else {
+							$(".hidden-unless-auth-failed").show();
+                            $("#password").removeAttr("required");
+							alert("Error authenticating user.");
+						}
+					});
+                });
+                $("#password-reset").on("click", function(e){
+                    e.preventDefault();
+                	if($("#username").val()){
+                        myFirebaseRef.resetPassword({"email": $("#username").val()}, function(error) {
+                            if (error === null) {
+                                alert("Password reset email sent successfully");
+                            } else {
+                                alert("The specified user does not exist.");
+                            }
+                        });
+                	}else{
+						$("#username").closest(".form-group").addClass("has-error");
+                	}
+                });
+                $("#logout").on("click", function(){
+                    myFirebaseRef.unauth();
+                    user = null;
+                    $(".hidden-when-authorised").show();
+                    $(".hidden-unless-authorised").hide();
+                    $(".hidden-unless-auth-failed").hide();
+                });
 				$(".num").on("click", function(){
 					var $this = $(this);
 					if($this.hasClass("score")){
@@ -98,9 +203,10 @@
 						var score = parseInt($(this).data("num"), 10);
 						total += score;
 						scores.push(score);
-						$("#roundTotal").text(total)
+						$("#roundTotal").text(total);
 						if(clicks === 6){
-							myFirebaseRef.push({
+                            var scoreListRef = new Firebase('https://<your-firebase>.firebaseio.com/scores/'+user.uid);
+                            scoreListRef.push({
 								"when": moment().format("DD/MM/YYYY HH:mm"),
 								"score": scores
 							});
@@ -112,7 +218,7 @@
 					total = 0;
 					clicks = 0;
 					scores = [];
-					$("#roundTotal").text("0")
+					$("#roundTotal").text("0");
 					$(".num").addClass("score");
 				});
 			});
