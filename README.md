@@ -14,3 +14,5 @@ TODO
 3. ~~Perhaps make it work for multiple people/profiles.~~
 4. Improve filtering so multiple sessions a day can be displayed.
 5. Some fancy visualizations for improvements etc.
+
+Demo hosted on [Firebase](https://incandescent-fire-8185.firebaseapp.com/).
