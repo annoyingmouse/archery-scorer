@@ -14,5 +14,22 @@ TODO
 3. ~~Perhaps make it work for multiple people/profiles.~~
 4. Improve filtering so multiple sessions a day can be displayed.
 5. Some fancy visualizations for improvements etc.
+6. ~~Implement Rules Security~~
 
 Demo hosted on [Firebase](https://incandescent-fire-8185.firebaseapp.com/).
+
+UPDATE
+------
+
+This rule seems to secure each users data from hacking:
+
+    {
+        "rules": {
+            "scores": {
+                "$uid": {
+                    ".read": "auth != null && auth.uid == $uid",
+                    ".write": "auth != null && auth.uid == $uid"
+                }
+            }
+        }
+    }
