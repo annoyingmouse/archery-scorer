@@ -5,23 +5,7 @@
 		<title>Display</title>
 		<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.css" rel="stylesheet"/>
 		<link href="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/css/jquery.dataTables.css" rel="stylesheet"/>
-		<style>
-			body{
-				padding-top: 60px;
-			}
-			.arrow{
-				background-color: #eee;
-				text-align: center;
-			}
-			.gold{
-				background-color: #FFD700;
-				text-align: center;
-				font-weight: bold;
-			}
-			.round, .running {
-				text-align: right;	
-			}
-		</style>
+		<link href="css/main.css" rel="stylesheet">
 	</head>
 	<body>
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -57,119 +41,6 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/lang/en-gb.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.1/js/jquery.dataTables.js"></script>
-		<script>
-			var cTable = $("#scores").DataTable({
-				"columns": [
-					{
-						"title": "ID",
-						"visible": false
-					},{
-						"title": "When",
-						"type" : "date-time-uk"
-					},{
-						"title": "1",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "2",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "3",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "4",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "5",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "6",
-						"width": "5%",
-						"class": "arrow",
-						"sortable": false
-					},{
-						"title": "Round Total",
-						"class": "round"
-					},{
-						"title": "Gold",
-						"class": "gold"
-					},{
-						"title": "Running Total",
-						"class": "running"
-					}
-				],
-				"order": [[ 1, "asc" ]],
-				"createdRow": function(row, data){
-					console.log(data)
-				},
-				"bJQueryUI": false
-			});
-			var scores = [];
-			var myFirebaseRef = new Firebase("https://<your-firebase>.firebaseio.com/");
-			$(function(){
-				myFirebaseRef.onAuth(function(authData) {
-					if (authData) {
-						myFirebaseRef.child("scores").child(authData.uid).on("value", function(snapshot) {
-							var runningTotal = 0;
-							$.each(snapshot.val(), function(key, value){
-								var tempArray = [];
-								var roundTotal = 0;
-								var golds = 0;
-								tempArray.push(key);
-								tempArray.push(value.when);
-								$.each(value.score, function(k, v){
-									var arrowScore = parseInt(v, 10);
-									roundTotal += arrowScore;
-									if(arrowScore >= 9){
-										golds++;
-									}
-									tempArray.push(v);
-								});
-								runningTotal += roundTotal;
-								tempArray.push(roundTotal);
-								tempArray.push(golds);
-								tempArray.push(runningTotal);
-								scores.push(tempArray);
-							});
-							cTable.clear().rows.add(scores).draw();
-							console.log(scores);
-						});
-					}else{
-						var location = window.location;
-						var pathname_array = location.pathname.split("/");
-						pathname_array.pop();
-						pathname_array.push("index.html");
-						var new_pathname = pathname_array.join("/");
-						location.pathname = new_pathname;
-					}
-				});
-				$("#logout").on("click", function(){
-					myFirebaseRef.unauth();
-					$(".hidden-when-authorised").show();
-					$(".hidden-unless-authorised").hide();
-					$(".hidden-unless-auth-failed").hide();
-				});
-			});
-			$.extend($.fn.dataTableExt.oSort, {
-				"date-time-uk-pre": function (a){
-					return parseInt(moment(a, "DD/MM/YYYY HH:mm").format("X"), 10);
-				},
-				"date-time-uk-asc": function (a, b) {
-					return a - b;
-				},
-				"date-time-uk-desc": function (a, b) {
-					return b - a;
-				}
-			});
-		</script>
+		<script src="js.display.js"></script>
 	</body>
 </html>

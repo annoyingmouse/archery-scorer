@@ -34,3 +34,5 @@ This rule seems to secure each users data from hacking:
             }
         }
     }
+
+If you're hosting on Firebase though you can add these rules as a separate json file and include it in the rules section of your `firebase.json` file.
