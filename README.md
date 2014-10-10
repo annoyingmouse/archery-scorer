@@ -9,12 +9,13 @@ If you create more than one account then the show.html is smart enough to get th
 
 TODO
 ----
-1. ~~Implement simple security~~
-2. Separate scores by day (probably have to do something with the structure of the DB for this to work)
+1. ~~Implement simple security.~~
+2. Separate scores by day (probably have to do something with the structure of the DB for this to work).
 3. ~~Perhaps make it work for multiple people/profiles.~~
 4. Improve filtering so multiple sessions a day can be displayed.
 5. Some fancy visualizations for improvements etc.
-6. ~~Implement Rules Security~~
+6. ~~Implement Rules Security.~~
+7. Add ability to remove specific score rows from the table.
 
 Demo hosted on [Firebase](https://incandescent-fire-8185.firebaseapp.com/).
 
